@@ -2,10 +2,10 @@
     Created by Antonio Martino <TheAlabaster92>, March 16th 2017, copyright© 2017 - All rights reserved.
     check the EULA on http://thealabaster92.sharkignite-studios.com/eula/ for more info.
 
-    Name:      Maintenance_Script;
-    Date:      March 16th 2017;
-    Version:   v0.2.0;
-    V.Date:    July 26th 2017;
+    Name:			AltMaint;
+    Date:			March 16th 2017;
+    Version:		v0.2.2;
+    Dev_Number:		20170803.2202;
 
     Description:
       Automated maintenance script with log files and final loop to auto shutdown.
@@ -20,8 +20,6 @@
            If and when a fix will be needed, chkdsk should be run manually by the user.
            Please check the logs after each maintenance to check if you need to fix errors on disk.
         2. This script makes use of third parties tools like Ccleaner and Auslogics Disk Defrag.
-           Those tools should be added to the PATH environment variable before running the script, otherwise the cleanup
-           and defrag tasks will be skipped.
         3. Some options have to be setup before the script is run. please refer to the documentation for cleanmgr /sageset
            and ccleaner /auto commands.
 		4. Chkdsk has been updated to fetch all the drives present on the computer, it will use a Get-PSDrive to list every
@@ -30,6 +28,9 @@
 		   running the script.
 
     Changelog:
+	  v0.2.2: Added Names for Jobs;
+			  (Experimental) - Fixed code to support local tools, removing the necessity to set Path variable;
+			  Reviewed version number following the actual bersioning convention;
       v0.2.1: (Experimental) - Added CCleaner and Aus. Disk Defrag to script folder;
               Fixed an issue with Chkdsk and Defrag loop that wouldn't let the tools run;
               Removed old code;
@@ -87,7 +88,7 @@ Start-Process cleanmgr /sagerun:1 -Wait;
 Write-Host "Done.`n";
 
 Write-Host "Pre-cleanup with ccleaner...";
-Start-Process ccleaner64 /Auto -Wait;
+Start-Process ccleaner64.lnk /Auto -Wait;
 Write-Host "Done.`n";
 
 Write-Host "File cleanup with windows clean manager...";
@@ -95,7 +96,7 @@ Start-Process cleanmgr /sagerun:1 -Wait;
 Write-Host "Done.`n";
 
 Write-Host "File cleanup with ccleaner...";
-Start-Process ccleaner64 /Auto -Wait;
+Start-Process ccleaner64.lnk /Auto -Wait;
 Write-Host "Done.`n";
 
 
@@ -114,64 +115,64 @@ Write-Host "We're starting, please be patient...`n";
 
 
 #SFC First Pass----------------------------------------------------------------------------------------------
-Write-Host -NoNewline "Running SFC /ScanNow (First Pass)...";
+#Write-Host -NoNewline "Running SFC /ScanNow (First Pass)...";
 Write-Output "-------------------$date-------------------" >> $logPath"SFC.log";
 Write-Output "First Pass:`n" >> $logPath"SFC.log";
-$job = Start-Job {SFC /ScanNow};
+$job = Start-Job {SFC /ScanNow} -Name "SFC 1st Pass";
 Wait-Job $job;
 Receive-Job $job | Out-File $logPath"SFC.log" -Append;
 (Get-Content $logPath"SFC.log") -replace "\x00", "" | Set-Content $logPath"SFC.log";
 (Get-Content $logPath"SFC.log") -replace "[\x08]+", "`n" | Set-Content $logPath"SFC.log";
 
 #DISM /Online /Cleanup-Image /StartComponentCleanup----------------------------------------------------------
-Write-Host -NoNewline "Running DISM /Online /Cleanup-Image /StartComponentCleanup";
+#Write-Host -NoNewline "Running DISM /Online /Cleanup-Image /StartComponentCleanup";
 Write-Output "-------------------$date-------------------" >> $logPath"DISM.log";
 Write-Output "DISM /Online /Cleanup-Image /StartComponentCleanup:`n" >> $logPath"DISM.log";
-$job = Start-Job {DISM /Online /Cleanup-Image /StartComponentCleanup};
+$job = Start-Job {DISM /Online /Cleanup-Image /StartComponentCleanup} -Name "Dism Component Cleanup";
 Wait-Job $job;
 Receive-Job $job | Out-File $logPath"DISM.log" -Append;
 
 #DISM /Online /Cleanup-Image /RestoreHealth------------------------------------------------------------------
-Write-Host -NoNewline "Running DISM /Online /Cleanup-Image /RestoreHealth";
+#Write-Host -NoNewline "Running DISM /Online /Cleanup-Image /RestoreHealth";
 Write-Output "`n`nDISM /Online /Cleanup-Image /RestoreHealth:`n" >> $logPath"DISM.log";
-$job = Start-Job {DISM /Online /Cleanup-Image /RestoreHealth};
+$job = Start-Job {DISM /Online /Cleanup-Image /RestoreHealth} -Name "Dism RestoreHealth";
 Wait-Job $job;
 Receive-Job $job | Out-File C:\Maint-Log\DISM.log -Append;
 Write-Output " " >> $logPath"DISM.log";
 
 #SFC Second Pass---------------------------------------------------------------------------------------------
-Write-Host -NoNewline "Running SFC /ScanNow (Second Pass)...";
+#Write-Host -NoNewline "Running SFC /ScanNow (Second Pass)...";
 Write-Output "`nSecond Pass:`n" >> $logPath"SFC.log";
-$job = Start-Job {SFC /ScanNow};
+$job = Start-Job {SFC /ScanNow} -Name "SFC 2nd Pass";
 Wait-Job $job;
 Receive-Job $job | Out-File -Encoding ASCII $logPath"SFC.log" -Append;
 (Get-Content $logPath"SFC.log") -replace "\x00", "" | Set-Content $logPath"SFC.log";
 (Get-Content $logPath"SFC.log") -replace "[\x08]+", "`n" | Set-Content $logPath"SFC.log";
 
 #Defrag with Windows Defrag (all drives)---------------------------------------------------------------------
-Write-Host -NoNewline "Running Defrag with Windows Defrag (all drives)...";
+#Write-Host -NoNewline "Running Defrag with Windows Defrag (all drives)...";
 Write-Output "-------------------$date-------------------" >> $logPath"Windows_Defrag.log";
 foreach ($drive in Get-PSDrive -PSProvider 'FileSystem') {
 	Write-Output "Defrag $($drive.Name):`n" >> $logPath"Windows_Defrag.log";
     $par = "$($drive.Name):";
-	$job = Start-Job {defrag $args[0]} -ArgumentList $par;
+	$job = Start-Job {defrag $args[0]} -ArgumentList $par -Name "Windows Defrag $($drive.Name):";
 	Wait-Job $job;
 	Receive-Job $job | Out-File $logPath"Windows_Defrag.log" -Append;
 	Write-Output " " >> $logPath"Windows_Defrag.log";
 }
 
 #Defrag with Auslogics Disk Defrag (all drives)--------------------------------------------------------------
-Write-Host -NoNewline "Running Defrag with Auslogics Disk Defrag (all drives)...";
+#Write-Host -NoNewline "Running Defrag with Auslogics Disk Defrag (all drives)...";
 Write-Output "-------------------$date-------------------" >> $logPath"Auslogics_Disk_Defrag.log";
-$job = Start-Job {cdefrag.exe -dt -o -c};
+$job = Start-Job {cdefrag.lnk -dt -o -c} -Name "Aus. DD all drives";
 Wait-Job $job;
 Receive-Job $job | Out-File $logPath"Auslogics_Disk_Defrag.log" -Append;
 (Get-Content $logPath"Auslogics_Disk_Defrag.log") -replace "[\x08]+", "`n" | Set-Content $logPath"Auslogics_Disk_Defrag.log";
 
 #SFC Third Pass----------------------------------------------------------------------------------------------
-Write-Host -NoNewline "Running SFC /ScanNow (Third Pass)...";
+#Write-Host -NoNewline "Running SFC /ScanNow (Third Pass)...";
 Write-Output "`nThird Pass:`n" >> $logPath"SFC.log";
-$job = Start-Job {SFC /ScanNow};
+$job = Start-Job {SFC /ScanNow} -Name "SFC 3rd Pass";
 Wait-Job $job;
 Receive-Job $job | Out-File -Encoding ASCII $logPath"SFC.log" -Append;
 (Get-Content $logPath"SFC.log") -replace "\x00", "" | Set-Content $logPath"SFC.log";
@@ -179,11 +180,11 @@ Receive-Job $job | Out-File -Encoding ASCII $logPath"SFC.log" -Append;
 cp C:\Windows\Logs\CBS\CBS.log C:\Maint-Log\CBS-WinLog.log;
 
 #Chkdsk (all drives)-----------------------------------------------------------------------------------------
-Write-Host -NoNewline "Chkdsk (all drives)...";
+#Write-Host -NoNewline "Chkdsk (all drives)...";
 Write-Output "-------------------$date-------------------" >> $logPath"Chkdsk.log";
 foreach ($drive in Get-PSDrive -PSProvider 'FileSystem') {
     $par = "$($drive.Name):";
-	$job = Start-Job {chkdsk $args[0]} -ArgumentList $par;
+	$job = Start-Job {chkdsk $args[0]} -ArgumentList $par -Name "Chkdsk $($drive.Name):";
 	Wait-Job $job;
 	Receive-Job $job | Out-File $logPath"Chkdsk.log" -Append;
 	Write-Output " " >> $logPath"Chkdsk.log";
