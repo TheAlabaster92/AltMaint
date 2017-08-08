@@ -1,0 +1,76 @@
+ChangeLog:
+Legend: + "Added"; - "Removed"; * "Changed"; ! "Fixed";
+
+v0.2.3.20170808.1704
+============================================================================
+! Typo not permitting to run ausDD tool;
+! Bug that prevented the auslogics d.d. to run in background;
+* ChangeLog and ReadMe structure;
+
+v0.2.2
+============================================================================
++ Names for Jobs;
+* Reviewed version number following the actual versioning convention;
+! (Experimental) - code to support local tools, removing the necessity to set Path variable;
+
+v0.2.1
+============================================================================
++ (Experimental) - CCleaner and Aus. Disk Defrag to script folder;
+- Old code;
+! Issue with Chkdsk and Defrag loop that wouldn't let the tools run;
+
+v0.2.0
+============================================================================
++ Comments to each part of the script;
++ Foreach loop for chkdsk to avoid entering all drives letters;
++ Note for Chkdsk command;
+- Duplicated tasks and un-necessary operations;
+- Defraggler tool;
+* Paths to use the local variable $logPath;
+* Moved all the comments to the end of the script;
+* Increased wait time after maintenance from 5 to 15 minutes before shutting down;
+* Increased the scheduled time for shutdown from 30 to 60 seconds;
+! Check for logPath existance;
+! File output;
+! Console output;
+
+v0.1.4
+============================================================================
++ Auslogics disk defrag tool since defragging with defraggler took a lot of time;			  
+* Switched from defraggler 64 to defraggler 32 bit;
+! Some text errors;
+
+v0.1.3
+============================================================================
+! Console output format;
+
+v0.1.2
+============================================================================
++ Regular expression to format the output of sfc /scannow command;
++ Copy of the advanced log files from windows for SFC and DISM;
++ More maintenance scans;
++ Messages before the start of each procedure;
+
+v0.1.1
+============================================================================
+! Typo that prevented Dism tool from running;
+
+v0.1.0
+============================================================================
++ Final Loop to auto shutdown after 5 minutes if the user is not around;
+
+v0.0.7
+============================================================================
+* .txt files to .log files for logging purposes;
+
+v0.0.5
+============================================================================
+- Echo on each line and left only the jobs output;
+
+v0.0.2
+============================================================================
+! Some issues where jobs would be skipped even if Wait-Job was issued;
+
+v0.0.1
+============================================================================
+$ First version, was a conversion from a batch script to powershell;
