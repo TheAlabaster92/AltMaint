@@ -2,7 +2,8 @@ Project Info:
 
 Name            AltMaint
 Extended Name   Alternative windows maintenance
-Version         v0.2.3.20170808.1704
+Version         v0.2.3
+Dev Version     v20170808.1704
 Author          TheAlabaster92
 Copyright       Created by Antonio Martino <TheAlabaster92>, March 16th 2017, copyright© 2017 - All rights reserved.
 EULA            https://alacrisys.com/EULA

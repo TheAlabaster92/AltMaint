@@ -8,9 +8,11 @@
 #Fields:
 $logPath = "C:\Maint-Log\";
 $logFolderExists = Test-Path $logPath
-$ccleanerPath = Resolve-Path .\CCleaner\ccleaner64.exe;
+$scriptRoot = $PSScriptRoot;
+if ($scriptRoot -eq "") {$scriptRoot = "."};
+$ccleanerPath = Resolve-Path "$($scriptRoot)\CCleaner\ccleaner64.exe";
 $ccleanerPath = $ccleanerPath.Path;
-$ausDDPath = Resolve-Path .\AusDiskDefrag\cdefrag.exe;
+$ausDDPath = Resolve-Path "$($scriptRoot)\AusDiskDefrag\cdefrag.exe";
 $ausDDPath = $ausDDPath.Path;
 
 if ($logFolderExists -eq $false) {

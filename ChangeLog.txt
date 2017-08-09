@@ -1,8 +1,9 @@
 ChangeLog:
 Legend: + "Added"; - "Removed"; * "Changed"; ! "Fixed";
 
-v0.2.3.20170808.1704
+vActual
 ============================================================================
+! Issue with path to tools;
 ! Typo not permitting to run ausDD tool;
 ! Bug that prevented the auslogics d.d. to run in background;
 * ChangeLog and ReadMe structure;
